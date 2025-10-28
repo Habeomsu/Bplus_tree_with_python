@@ -108,6 +108,48 @@ class BPlusTree:
                 return result
         return None
 
+    ## 탐색
+    def search(self, key):
+        """단일 키 탐색"""
+        node = self._find_leaf(self.root, key)
+
+        for i, k in enumerate(node.keys):
+            if k == key:
+                print(f"✅ [탐색 성공] Key={key}, Value={node.children[i]}")
+                return node.children[i]
+
+        print(f"❌ [탐색 실패] Key={key}는 존재하지 않음")
+        return None
+
+    def search_with_trace(self, key):
+        """탐색 경로를 출력하면서 키를 찾기"""
+        node = self.root
+        path = []
+
+        # 리프까지 내려가기
+        while not node.is_leaf:
+            path.append(node.keys[:])
+            i = 0
+            while i < len(node.keys) and key >= node.keys[i]:
+                i += 1
+            node = node.children[i]
+
+        path.append(node.keys[:])
+
+        # 결과 출력
+        print("\n🔍 [탐색 경로 추적]")
+        for level, keys in enumerate(path):
+            print(f"Level {level}: {keys}")
+
+        # 실제 데이터 검색
+        for i, k in enumerate(node.keys):
+            if k == key:
+                print(f"✅ [탐색 성공] Key={key}, Value={node.children[i]}")
+                return node.children[i]
+
+        print(f"❌ [탐색 실패] Key={key}는 존재하지 않음")
+        return None
+
     def print_tree(self, node=None, level=0, is_last=True, prefix=""):
         """B+ 트리를 트리 형태로 예쁘게 출력"""
         node = node or self.root
@@ -123,16 +165,21 @@ class BPlusTree:
 
 
 if __name__ == '__main__':
-
-    # 1️⃣ 트리 생성
     bpt = BPlusTree(order=3)
-
-    # 2️⃣ 데이터 삽입
     bpt.insert(10, "apple")
     bpt.insert(20, "banana")
     bpt.insert(5, "grape")
     bpt.insert(15, "mango")
     bpt.insert(25, "melon")
 
-    # 3️⃣ 트리 구조 출력
+    print("\n=== B+ 트리 구조 ===")
     bpt.print_tree()
+
+    print("\n=== 단일 탐색 ===")
+    bpt.search(15)
+    bpt.search(100)
+
+    print("\n=== 경로 추적 탐색 ===")
+    bpt.search_with_trace(25)
+
+
